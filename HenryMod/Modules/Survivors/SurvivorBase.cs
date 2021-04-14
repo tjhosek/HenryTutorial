@@ -10,16 +10,16 @@ namespace HenryMod.Modules.Survivors
     {
         internal static SurvivorBase instance;
 
-        internal abstract string bodyName { get; set;  }
+        internal abstract string bodyName { get; set; }
 
-        internal abstract GameObject bodyPrefab { get; set;  }
+        internal abstract GameObject bodyPrefab { get; set; }
         internal abstract GameObject displayPrefab { get; set; }
+
+        internal string fullBodyName => bodyName + "Body";
 
         internal abstract ConfigEntry<bool> characterEnabled { get; set; }
 
         internal abstract UnlockableDef characterUnlockableDef { get; set; }
-
-        internal abstract float survivorSortPosition { get; set; }
 
         internal abstract BodyInfo bodyInfo { get; set; }
 
@@ -27,7 +27,6 @@ namespace HenryMod.Modules.Survivors
         internal abstract CustomRendererInfo[] customRendererInfos { get; set; }
 
         internal abstract Type characterMainState { get; set; }
-        internal abstract Type characterSpawnState { get; set; }
 
         internal abstract ItemDisplayRuleSet itemDisplayRuleSet { get; set; }
         internal abstract List<ItemDisplayRuleSet.KeyAssetRuleGroup> itemDisplayRules { get; set; }
@@ -48,17 +47,13 @@ namespace HenryMod.Modules.Survivors
                 InitializeUnlockables();
 
                 bodyPrefab = Modules.Prefabs.CreatePrefab(bodyName + "Body", "mdl" + bodyName, bodyInfo);
-
-                EntityStateMachine entityStateMachine = bodyPrefab.GetComponent<EntityStateMachine>();
-                entityStateMachine.mainStateType = new EntityStates.SerializableEntityStateType(characterMainState);
-                entityStateMachine.initialStateType = new EntityStates.SerializableEntityStateType(characterSpawnState);
+                bodyPrefab.GetComponent<EntityStateMachine>().mainStateType = new EntityStates.SerializableEntityStateType(characterMainState);
 
                 Modules.Prefabs.SetupCharacterModel(bodyPrefab, customRendererInfos, mainRendererIndex);
 
                 displayPrefab = Modules.Prefabs.CreateDisplayPrefab(bodyName + "Display", bodyPrefab, bodyInfo);
-                if (!displayPrefab) displayPrefab = GameObject.Instantiate(bodyPrefab.GetComponent<ModelLocator>().modelBaseTransform.gameObject);
 
-                Modules.Prefabs.RegisterNewSurvivor(bodyPrefab, displayPrefab, Color.grey, bodyName.ToUpper(), characterUnlockableDef, survivorSortPosition);
+                Modules.Prefabs.RegisterNewSurvivor(bodyPrefab, displayPrefab, Color.grey, bodyName.ToUpper(), characterUnlockableDef, 101f);
 
                 InitializeHitboxes();
                 InitializeSkills();
